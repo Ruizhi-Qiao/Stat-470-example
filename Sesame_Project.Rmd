@@ -1,0 +1,210 @@
+---
+title: "sesame"
+author: "Ruizhi Qiao"
+date: "September 9, 2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(xlsx)
+SS=read.xlsx('sesame.xlsx', sheetIndex = 1)
+```
+
+```{r}
+SS$improvenumb=SS$postnumb-SS$prenumb
+SS$improvelet=SS$postlet-SS$prelet
+SS$improveform=SS$postform-SS$preform
+SS$improvebody=SS$postbody-SS$prebody
+SS$improverelat=SS$postrelat-SS$prerelat
+SS$improveclasf=SS$postclasf-SS$preclasf
+```
+
+
+```{r}
+site1=SS[SS$site==1,]
+site2=SS[SS$site==2,]
+site3=SS[SS$site==3,]
+site4=SS[SS$site==4,]
+site5=SS[SS$site==5,]
+```
+
+
+```{r}
+sesame=SS
+sesame$s1[sesame$site==1]=1
+sesame$s1[sesame$site>1]=0
+sesame$s2[sesame$site==2]=1
+sesame$s2[sesame$site>2]=0
+sesame$s2[sesame$site<2]=0
+sesame$s3[sesame$site==3]=1
+sesame$s3[sesame$site>3]=0
+sesame$s3[sesame$site<3]=0
+sesame$s4[sesame$site==4]=1
+sesame$s4[sesame$site>4]=0
+sesame$s4[sesame$site<4]=0
+sesame$sex[sesame$sex==2]=0
+sesame$setting[sesame$setting==2]=0
+sesame$viewenc[sesame$viewenc==2]=0
+sesame$vc1[sesame$viewcat==1]=1
+sesame$vc1[sesame$viewcat>1]=0
+sesame$vc2[sesame$viewcat==2]=1
+sesame$vc2[sesame$viewcat>2]=0
+sesame$vc2[sesame$viewcat<2]=0
+sesame$vc3[sesame$viewcat==3]=1
+sesame$vc3[sesame$viewcat>3]=0
+sesame$vc3[sesame$viewcat<3]=0
+```
+
+```{r}
+attach(SS)
+pairs(~age+improveclasf+improvebody+improverelat+peabody+prenumb+prelet+preform+improvenumb+improvelet+improveform)
+```
+
+```{r}
+boxplot(improvenumb~site)
+boxplot(improvenumb~sex)
+boxplot(improvenumb~viewcat)
+boxplot(improvenumb~setting)
+boxplot(improvenumb~viewenc)
+boxplot(improvenumb~agecat)
+boxplot(improvenumb~encour)
+boxplot(improvenumb~regular)
+```
+
+```{r}
+boxplot(improvelet~site)
+boxplot(improvelet~sex)
+boxplot(improvelet~viewcat)
+boxplot(improvelet~setting)
+boxplot(improvelet~viewenc)
+boxplot(improvelet~agecat)
+boxplot(improvelet~encour)
+boxplot(improvelet~regular)
+```
+
+```{r}
+boxplot(improveform~site)
+boxplot(improveform~sex)
+boxplot(improveform~viewcat)
+boxplot(improveform~setting)
+boxplot(improveform~viewenc)
+boxplot(improveform~agecat)
+boxplot(improveform~encour)
+boxplot(improveform~regular)
+```
+
+```{r}
+attach(sesame)
+fit1=lm(improvenumb~sex+age++setting+viewenc+improveclasf+improvebody+improverelat+peabody+agecat+encour+regular+s1+s2+s3+s4+vc1+vc2+vc3+prenumb)
+summary(fit1)
+```
+
+```{r}
+MSE1=(summary(fit1)$sigma)^2
+step(fit1, scale=MSE1, direction="backward")
+```
+
+```{r}
+none=lm(improvenumb~1)
+step(none, scope=list(upper=fit1), scale=MSE1)
+```
+
+```{r}
+fit2=lm(improvelet~sex+age++setting+viewenc+improveclasf+improvebody+improverelat+peabody+agecat+encour+regular+s1+s2+s3+s4+vc1+vc2+vc3+prelet)
+summary(fit2)
+```
+
+```{r}
+MSE2=(summary(fit2)$sigma)^2
+step(fit2, scale=MSE2, direction="backward")
+```
+
+```{r}
+none=lm(improvelet~1)
+step(none, scope=list(upper=fit2), scale=MSE2)
+```
+
+```{r}
+fit3=lm(improveform~sex+age++setting+viewenc+improveclasf+improvebody+improverelat+peabody+agecat+encour+regular+s1+s2+s3+s4+vc1+vc2+vc3+preform)
+summary(fit3)
+```
+
+```{r}
+MSE3=(summary(fit3)$sigma)^2
+step(fit3, scale=MSE3, direction="backward")
+```
+
+```{r}
+none=lm(improveform~1)
+step(none, scope=list(upper=fit3), scale=MSE3)
+```
+
+```{r}
+fitnumb=lm(improvenumb ~ age + setting + improveclasf + improvebody + 
+    improverelat + regular + s1 + s3 + s4 + vc2 + prenumb)
+```
+
+```{r}
+fitlet=lm(improvelet ~ age + improveclasf + improvebody + 
+    peabody + regular + s2 + s3 + vc2 + prelet)
+```
+
+```{r}
+fitform=lm(improveform ~ age + improveclasf + improvebody + 
+    regular + s2 + s3 + vc2 + vc3 + preform)
+```
+
+```{r}
+library(car)
+vif(fitnumb)
+vif(fitlet)
+vif(fitform)
+```
+
+```{r}
+summary(fitnumb)
+summary(fitlet)
+summary(fitform)
+```
+```{r}
+mean(improvenumb)
+mean(improvelet)
+mean(improveform)
+```
+
+```{r}
+plot(fit1)
+```
+
+```{r}
+plot(fit2)
+```
+
+```{r}
+plot(fit3)
+```
+
+```{r}
+plot(fit1,which=4)
+```
+
+```{r}
+plot(fit2,which=4)
+```
+
+```{r}
+plot(fit3,which=4)
+```
+
+
+
+
+
+
